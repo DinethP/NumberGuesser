@@ -8,19 +8,62 @@ import {
   // Needed to hide number pad
   TouchableWithoutFeedback,
   Keyboard,
+  Alert,
 } from "react-native";
 
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Colors from "../constants/colors";
+import NumberContainer from "../components/NumberContainer";
 
 const StartGameScreen = (props) => {
   const [enteredValue, setEnteredValue] = useState("");
+  const [confirmed, setConfirmed] = useState(false);
+  const [selectedNumber, setSelectedNumber] = useState();
 
   const inputHandler = (e) => {
     // Replace any no numeric input with empty string
     setEnteredValue(e.nativeEvent.text.replace(/[^0-9]/g, ""));
   };
+
+  const resetInputHandler = () => {
+    setEnteredValue("");
+    setConfirmed(false);
+  };
+
+  const confirmInputHandler = () => {
+    // convert the number entered from string to integer
+    const chosenNumber = parseInt(enteredValue);
+    // check if number is valid and not negative
+    if (isNaN(chosenNumber) || chosenNumber <= 0 || chosenNumber > 99) {
+      Alert.alert(
+        // Alert text values
+        "Invalid Number!",
+        "Number has to be a number between 1 and 99",
+        // receives an object for the alert button properties
+        // The button text is 'Okay', button style is detructive and the resetInputHandler is run on click
+        [{ text: "Okay", style: "destructive", onPress: resetInputHandler }]
+      );
+      return;
+    }
+    setConfirmed(true);
+    setSelectedNumber(chosenNumber);
+    setEnteredValue("");
+    Keyboard.dismiss();
+  };
+
+  let confirmedOutput;
+  // confirmed output will only store the JSX if confirmed is true. Otherwise, with every refresh, it will
+  // be undefined
+  if (confirmed) {
+    confirmedOutput = (
+      <Card style={styles.summaryContainer}>
+        <Text>You selected</Text>
+        <NumberContainer>{selectedNumber}</NumberContainer>
+        <Button title="START GAME" />
+      </Card>
+    );
+  }
   return (
     // This component allows keyboard to be  hidden when you press outside Input field
     <TouchableWithoutFeedback
@@ -45,13 +88,23 @@ const StartGameScreen = (props) => {
           />
           <View style={styles.buttonContainer}>
             <View style={styles.button}>
-              <Button title="Reset" color={Colors.accent} />
+              <Button
+                title="Reset"
+                color={Colors.accent}
+                onPress={resetInputHandler}
+              />
             </View>
             <View style={styles.button}>
-              <Button title="Confirm" color={Colors.primary} />
+              <Button
+                title="Confirm"
+                color={Colors.primary}
+                onPress={confirmInputHandler}
+              />
             </View>
           </View>
         </Card>
+        {/* Display confirmed output after clicking confirm */}
+        {confirmedOutput}
       </View>
     </TouchableWithoutFeedback>
   );
@@ -84,6 +137,10 @@ const styles = StyleSheet.create({
   },
   button: {
     width: 90,
+  },
+  summaryContainer: {
+    marginTop: 20,
+    alignItems: "center",
   },
 });
 

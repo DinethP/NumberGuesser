@@ -2,7 +2,7 @@ import React from "react";
 import { TextInput, StyleSheet } from "react-native";
 
 const Input = (props) => {
-  // formward all props. The style prop gets overidden withnew ones
+  // formward all props. The style prop gets overidden with new ones
   return <TextInput {...props} style={{ ...styles.input, ...props.style }} />;
 };
 
