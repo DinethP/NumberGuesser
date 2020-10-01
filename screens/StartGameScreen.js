@@ -22,7 +22,7 @@ const StartGameScreen = (props) => {
   const [selectedNumber, setSelectedNumber] = useState();
 
   const inputHandler = (e) => {
-    // Replace any no numeric input with empty string
+    // Replace any non numeric input with empty string
     setEnteredValue(e.nativeEvent.text.replace(/[^0-9]/g, ""));
   };
 
@@ -60,7 +60,11 @@ const StartGameScreen = (props) => {
       <Card style={styles.summaryContainer}>
         <Text>You selected</Text>
         <NumberContainer>{selectedNumber}</NumberContainer>
-        <Button title="START GAME" />
+        <Button
+          title="START GAME"
+          // has to be called inside an anonymous function to prevent it running instantly
+          onPress={() => props.onStartGame(selectedNumber)}
+        />
       </Card>
     );
   }
