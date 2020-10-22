@@ -14,6 +14,7 @@ import {
 import Card from "../components/Card";
 import Input from "../components/Input";
 import Colors from "../constants/colors";
+import BodyText from "../components/BodyText";
 import NumberContainer from "../components/NumberContainer";
 
 const StartGameScreen = (props) => {
@@ -79,7 +80,8 @@ const StartGameScreen = (props) => {
         <Text style={styles.title}>Start a new game</Text>
         {/*  All children withn Card component will be rendered inside Card component  */}
         <Card style={styles.inputContainer}>
-          <Text>Select a Number</Text>
+          {/* wrapper component to apply custom fonts to Text */}
+          <BodyText>Select a Number</BodyText>
           <Input
             style={styles.input}
             blurOnSubmit
@@ -121,6 +123,8 @@ const styles = StyleSheet.create({
     alignItems: "center",
   },
   title: {
+    // using imported font
+    fontFamily: "open-sans-bold",
     fontSize: 20,
     marginVertical: 10,
   },

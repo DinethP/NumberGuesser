@@ -1,4 +1,4 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { StyleSheet, Text, View, Button, Alert } from "react-native";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
@@ -15,22 +15,30 @@ const generateRandomNumber = (min, max, exclude) => {
   }
 };
 
-const GameScreen = (props) => {
+const GameScreen = ({ userChoice, onGameOver }) => {
   // The state will only be set once, because we run the generateRandomNumber function inside useState(),
   // so it will only run when no state is set, which is only once. It doesn't run once the state is set intially
   const [currentGuess, setcurrentGuess] = useState(
-    generateRandomNumber(1, 100, props.userChoice)
+    generateRandomNumber(1, 100, userChoice)
   );
   // These ref's survive component reloads. Values are preserved
   // The difference between ref and state is that changes to ref
   // values doesn't trigger a component re-render, while state does
+  const [rounds, setRounds] = useState(0);
   const currentMin = useRef(1);
   const currentMax = useRef(100);
 
+  useEffect(() => {
+    if (currentGuess == userChoice) {
+      // pass no. of rounds taken to guess the number
+      onGameOver(rounds);
+    }
+  }, [currentGuess, onGameOver, userChoice]);
+
   const handleGuess = (direction) => {
     if (
-      (direction === "lower" && currentGuess < props.userChoice) ||
-      (direction === "greater" && currentGuess > props.userChoice)
+      (direction === "lower" && currentGuess < userChoice) ||
+      (direction === "greater" && currentGuess > userChoice)
     ) {
       // if you don't provider an onClick handler to Alert, it will auto close when you click the button
       Alert.alert("Are you sure?", "Try again", [
@@ -52,6 +60,7 @@ const GameScreen = (props) => {
       currentGuess
     );
     setcurrentGuess(newGuess);
+    setRounds((curRounds) => curRounds + 1);
   };
   return (
     <View style={styles.screen}>
