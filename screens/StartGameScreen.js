@@ -15,6 +15,7 @@ import Card from "../components/Card";
 import Input from "../components/Input";
 import Colors from "../constants/colors";
 import BodyText from "../components/BodyText";
+import TitleText from "../components/TitleText";
 import NumberContainer from "../components/NumberContainer";
 
 const StartGameScreen = (props) => {
@@ -77,7 +78,7 @@ const StartGameScreen = (props) => {
       }}
     >
       <View style={styles.screen}>
-        <Text style={styles.title}>Start a new game</Text>
+        <TitleText style={styles.title}>Start a new game</TitleText>
         {/*  All children withn Card component will be rendered inside Card component  */}
         <Card style={styles.inputContainer}>
           {/* wrapper component to apply custom fonts to Text */}
