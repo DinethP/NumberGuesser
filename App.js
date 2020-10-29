@@ -55,7 +55,6 @@ export default function App() {
   // conditionally load the StartGame screen or the GameScreen
   // pass the handler function as a prop, which will set the userNumber
   let content = <StartGameScreen onStartGame={startGameHandler} />;
-  content = <GameOverScreen rounds={1} number={1} onRestart={restartGame} />;
 
   // if the userNumber is available and the game starts, the GameScreen
   // is showed and it's value is passed as a prop

@@ -1,7 +1,10 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, View, Button, Alert } from "react-native";
+import { StyleSheet, Text, View, Alert, ScrollView } from "react-native";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
+import BodyText from "../components/BodyText";
+import MainButton from "../components/MainButton";
+import { Ionicons } from "@expo/vector-icons";
 
 const generateRandomNumber = (min, max, exclude) => {
   min = Math.ceil(min);
@@ -15,23 +18,30 @@ const generateRandomNumber = (min, max, exclude) => {
   }
 };
 
+const renderListItem = (guess, numOfRound) => (
+  <View key={guess} style={styles.listItem}>
+    <BodyText>#{numOfRound}</BodyText>
+    <BodyText>{guess}</BodyText>
+  </View>
+);
+
 const GameScreen = ({ userChoice, onGameOver }) => {
   // The state will only be set once, because we run the generateRandomNumber function inside useState(),
   // so it will only run when no state is set, which is only once. It doesn't run once the state is set intially
-  const [currentGuess, setcurrentGuess] = useState(
-    generateRandomNumber(1, 100, userChoice)
-  );
+  const initGuess = generateRandomNumber(1, 100, userChoice);
+  const [currentGuess, setcurrentGuess] = useState(initGuess);
+  const [guesses, setGuesses] = useState([initGuess]);
+
   // These ref's survive component reloads. Values are preserved
   // The difference between ref and state is that changes to ref
   // values doesn't trigger a component re-render, while state does
-  const [rounds, setRounds] = useState(0);
   const currentMin = useRef(1);
   const currentMax = useRef(100);
 
   useEffect(() => {
     if (currentGuess == userChoice) {
       // pass no. of rounds taken to guess the number
-      onGameOver(rounds);
+      onGameOver(guesses.length);
     }
   }, [currentGuess, onGameOver, userChoice]);
 
@@ -51,7 +61,7 @@ const GameScreen = ({ userChoice, onGameOver }) => {
       // set the current value to be new max
       currentMax.current = currentGuess;
     } else {
-      currentMin.current = currentGuess;
+      currentMin.current = currentGuess + 1;
     }
     // generate new guess with updated limits
     const newGuess = generateRandomNumber(
@@ -60,23 +70,28 @@ const GameScreen = ({ userChoice, onGameOver }) => {
       currentGuess
     );
     setcurrentGuess(newGuess);
-    setRounds((curRounds) => curRounds + 1);
+    // setRounds((curRounds) => curRounds + 1);
+    setGuesses((curGuesses) => [newGuess, ...curGuesses]);
   };
   return (
     <View style={styles.screen}>
       <Text>Opponent's Guess</Text>
       <NumberContainer>{currentGuess}</NumberContainer>
       <Card style={styles.buttonContainer}>
-        <Button
-          title="LOWER"
+        <MainButton
           onPress={
             // you use bind when you want pass a parameter to a function when
             // it gets called
             handleGuess.bind(this, "lower")
           }
-        />
-        <Button title="GREATER" onPress={handleGuess.bind(this, "greater")} />
+        >
+          <Ionicons name="md-remove" size={24} color="white" />
+        </MainButton>
+        <MainButton onPress={handleGuess.bind(this, "greater")}>
+          <Ionicons name="md-add" size={24} color="white" />
+        </MainButton>
       </Card>
+      <ScrollView>{guesses.map((guess) => renderListItem(guess))}</ScrollView>
     </View>
   );
 };
@@ -91,8 +106,16 @@ const styles = StyleSheet.create({
     flexDirection: "row",
     justifyContent: "space-around",
     marginTop: 20,
-    width: 300,
-    maxWidth: "80%",
+    width: 400,
+    maxWidth: "90%",
+  },
+  listItem: {
+    borderColor: "#CCC",
+    borderWidth: 1,
+    padding: 15,
+    marginVertical: 10,
+    backgroundColor: "white",
+    flexDirection: "row",
   },
 });
 
