@@ -1,5 +1,5 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, View, Alert, ScrollView } from "react-native";
+import { StyleSheet, Text, View, Alert, FlatList } from "react-native";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
 import BodyText from "../components/BodyText";
@@ -17,11 +17,12 @@ const generateRandomNumber = (min, max, exclude) => {
     return rndNum;
   }
 };
-
-const renderListItem = (guess, numOfRound) => (
-  <View key={guess} style={styles.listItem}>
-    <BodyText>#{numOfRound}</BodyText>
-    <BodyText>{guess}</BodyText>
+// itemData is the default argument passed into renderItem call
+// listLength is passed from .bind()
+const renderListItem = (listLength, itemData) => (
+  <View style={styles.listItem}>
+    <BodyText>#{listLength - itemData.index}</BodyText>
+    <BodyText>{itemData.item}</BodyText>
   </View>
 );
 
@@ -30,7 +31,7 @@ const GameScreen = ({ userChoice, onGameOver }) => {
   // so it will only run when no state is set, which is only once. It doesn't run once the state is set intially
   const initGuess = generateRandomNumber(1, 100, userChoice);
   const [currentGuess, setcurrentGuess] = useState(initGuess);
-  const [guesses, setGuesses] = useState([initGuess]);
+  const [guesses, setGuesses] = useState([initGuess.toString()]);
 
   // These ref's survive component reloads. Values are preserved
   // The difference between ref and state is that changes to ref
@@ -70,8 +71,7 @@ const GameScreen = ({ userChoice, onGameOver }) => {
       currentGuess
     );
     setcurrentGuess(newGuess);
-    // setRounds((curRounds) => curRounds + 1);
-    setGuesses((curGuesses) => [newGuess, ...curGuesses]);
+    setGuesses((curGuesses) => [newGuess.toString(), ...curGuesses]);
   };
   return (
     <View style={styles.screen}>
@@ -91,7 +91,22 @@ const GameScreen = ({ userChoice, onGameOver }) => {
           <Ionicons name="md-add" size={24} color="white" />
         </MainButton>
       </Card>
-      <ScrollView>{guesses.map((guess) => renderListItem(guess))}</ScrollView>
+      <View style={styles.listContainer}>
+        {/* contentContainer style is a special style for ScrollView and FlatList */}
+        {/* style content in the list */}
+        {/* <ScrollView contentContainerStyle={styles.list}>
+          {guesses.map((guess, index) =>
+            renderListItem(guess, guesses.length - index)
+          )}
+        </ScrollView> */}
+        <FlatList
+          keyExtractor={(item) => item}
+          data={guesses}
+          // .bind() allows us to pass extra arguments in addition to the defaul parameter
+          renderItem={renderListItem.bind(this, guesses.length)}
+          contentContainerStyle={styles.list}
+        />
+      </View>
     </View>
   );
 };
@@ -109,6 +124,16 @@ const styles = StyleSheet.create({
     width: 400,
     maxWidth: "90%",
   },
+  listContainer: {
+    // flex property is needed to make it scrollable in Android
+    flex: 1,
+    width: "60%",
+  },
+  list: {
+    flexGrow: 1,
+    // alignItems: "center",
+    justifyContent: "flex-end",
+  },
   listItem: {
     borderColor: "#CCC",
     borderWidth: 1,
@@ -116,6 +141,8 @@ const styles = StyleSheet.create({
     marginVertical: 10,
     backgroundColor: "white",
     flexDirection: "row",
+    justifyContent: "space-between",
+    width: "100%",
   },
 });
 
