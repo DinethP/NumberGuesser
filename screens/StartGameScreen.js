@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   View,
   Text,
@@ -9,6 +9,9 @@ import {
   TouchableWithoutFeedback,
   Keyboard,
   Alert,
+  Dimensions,
+  KeyboardAvoidingView,
+  ScrollView,
 } from "react-native";
 
 import Card from "../components/Card";
@@ -23,6 +26,9 @@ const StartGameScreen = (props) => {
   const [enteredValue, setEnteredValue] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [selectedNumber, setSelectedNumber] = useState();
+  const [buttonWidth, setButtonWidth] = useState(
+    Dimensions.get("window").width / 4
+  );
 
   const inputHandler = (e) => {
     // Replace any non numeric input with empty string
@@ -33,6 +39,19 @@ const StartGameScreen = (props) => {
     setEnteredValue("");
     setConfirmed(false);
   };
+
+  useEffect(() => {
+    // this updates the buttonWidth state everytime when screen rotates
+    const updateLayout = () => {
+      setButtonWidth(Dimensions.get("window").width / 4);
+    };
+    // event listener that triggers function to update width state
+    Dimensions.addEventListener("change", updateLayout);
+    // cleanup: remove the event listener
+    return () => {
+      Dimensions.removeEventListener("change", updateLayout);
+    };
+  });
 
   const confirmInputHandler = () => {
     // convert the number entered from string to integer
@@ -74,48 +93,54 @@ const StartGameScreen = (props) => {
   }
   return (
     // This component allows keyboard to be  hidden when you press outside Input field
-    <TouchableWithoutFeedback
-      onPress={() => {
-        Keyboard.dismiss();
-      }}
-    >
-      <View style={styles.screen}>
-        <TitleText style={styles.title}>Start a new game</TitleText>
-        {/*  All children withn Card component will be rendered inside Card component  */}
-        <Card style={styles.inputContainer}>
-          {/* wrapper component to apply custom fonts to Text */}
-          <BodyText>Select a Number</BodyText>
-          <Input
-            style={styles.input}
-            blurOnSubmit
-            autoCapitalize="none"
-            autoCorrect={false}
-            keyboardType="number-pad"
-            maxLength={2}
-            onChange={inputHandler}
-            value={enteredValue}
-          />
-          <View style={styles.buttonContainer}>
-            <View style={styles.button}>
-              <Button
-                title="Reset"
-                color={Colors.accent}
-                onPress={resetInputHandler}
+    <ScrollView>
+      <KeyboardAvoidingView behavior="padding" keyboardVerticalOffset={30}>
+        <TouchableWithoutFeedback
+          onPress={() => {
+            Keyboard.dismiss();
+          }}
+        >
+          <View style={styles.screen}>
+            <TitleText style={styles.title}>Start a new game</TitleText>
+            {/*  All children withn Card component will be rendered inside Card component  */}
+            <Card style={styles.inputContainer}>
+              {/* wrapper component to apply custom fonts to Text */}
+              <BodyText>Select a Number</BodyText>
+              <Input
+                style={styles.input}
+                blurOnSubmit
+                autoCapitalize="none"
+                autoCorrect={false}
+                keyboardType="number-pad"
+                maxLength={2}
+                onChange={inputHandler}
+                value={enteredValue}
               />
-            </View>
-            <View style={styles.button}>
-              <Button
-                title="Confirm"
-                color={Colors.primary}
-                onPress={confirmInputHandler}
-              />
-            </View>
+              <View style={styles.buttonContainer}>
+                <View style={{ width: buttonWidth }}>
+                  <Button
+                    title="Reset"
+                    color={Colors.accent}
+                    onPress={resetInputHandler}
+                  />
+                </View>
+                {/* this width uses our local state to get the updated width
+                when orientation changes */}
+                <View style={{ width: buttonWidth }}>
+                  <Button
+                    title="Confirm"
+                    color={Colors.primary}
+                    onPress={confirmInputHandler}
+                  />
+                </View>
+              </View>
+            </Card>
+            {/* Display confirmed output after clicking confirm */}
+            {confirmedOutput}
           </View>
-        </Card>
-        {/* Display confirmed output after clicking confirm */}
-        {confirmedOutput}
-      </View>
-    </TouchableWithoutFeedback>
+        </TouchableWithoutFeedback>
+      </KeyboardAvoidingView>
+    </ScrollView>
   );
 };
 
@@ -132,8 +157,9 @@ const styles = StyleSheet.create({
     marginVertical: 10,
   },
   inputContainer: {
-    width: 300,
-    maxWidth: "80%",
+    width: "80%",
+    maxWidth: "95%",
+    minWidth: 300,
     alignItems: "center",
   },
   input: {
@@ -146,9 +172,11 @@ const styles = StyleSheet.create({
     justifyContent: "space-between",
     paddingHorizontal: 15,
   },
-  button: {
-    width: 90,
-  },
+  // button: {
+  //   // width: 90,
+  //   // get the width of device screen
+  //   width: Dimensions.get("window").width / 4,
+  // },
   summaryContainer: {
     marginTop: 20,
     alignItems: "center",

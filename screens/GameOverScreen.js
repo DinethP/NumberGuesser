@@ -1,5 +1,13 @@
 import React from "react";
-import { View, Text, StyleSheet, Button, Image } from "react-native";
+import {
+  View,
+  Text,
+  StyleSheet,
+  Button,
+  Image,
+  Dimensions,
+  ScrollView,
+} from "react-native";
 import Colors from "../constants/colors";
 import BodyText from "../components/BodyText";
 import TitleText from "../components/TitleText";
@@ -7,22 +15,27 @@ import MainButton from "../components/MainButton";
 
 function GameOverScreen({ rounds, number, onRestart }) {
   return (
-    <View style={styles.screen}>
-      <TitleText>The game is over</TitleText>
-      <View style={styles.imageContainer}>
-        <Image source={require("../assets/success.png")} style={styles.image} />
-      </View>
-      {/* only text components will inherit styles from it parents. Other components
+    <ScrollView>
+      <View style={styles.screen}>
+        <TitleText>The game is over</TitleText>
+        <View style={styles.imageContainer}>
+          <Image
+            source={require("../assets/success.png")}
+            style={styles.image}
+          />
+        </View>
+        {/* only text components will inherit styles from it parents. Other components
       do not */}
-      <View style={styles.resultContainer}>
-        <BodyText style={styles.resultText}>
-          {/* you can nest Text components */}
-          Your phone needed <Text style={styles.highlight}>{rounds}</Text> to
-          guess the number <Text style={styles.highlight}>{number}</Text>
-        </BodyText>
+        <View style={styles.resultContainer}>
+          <BodyText style={styles.resultText}>
+            {/* you can nest Text components */}
+            Your phone needed <Text style={styles.highlight}>{rounds}</Text> to
+            guess the number <Text style={styles.highlight}>{number}</Text>
+          </BodyText>
+        </View>
+        <MainButton onPress={onRestart}>RESTART</MainButton>
       </View>
-      <MainButton onPress={onRestart}>RESTART</MainButton>
-    </View>
+    </ScrollView>
   );
 }
 
@@ -34,16 +47,17 @@ const styles = StyleSheet.create({
   },
   resultContainer: {
     marginHorizontal: 20,
-    marginVertical: 20,
+    marginVertical: Dimensions.get("window").width / 60,
   },
   imageContainer: {
-    width: 300,
-    height: 300,
-    borderRadius: 150,
+    // dimensions will be set so that the image will be a square
+    width: Dimensions.get("window").width * 0.7,
+    height: Dimensions.get("window").width * 0.7,
+    borderRadius: (Dimensions.get("window").width * 0.7) / 2,
     borderWidth: 3,
     borderColor: "black",
     overflow: "hidden",
-    marginVertical: 30,
+    marginVertical: Dimensions.get("window").width / 30,
   },
   image: {
     width: "100%",
@@ -51,7 +65,7 @@ const styles = StyleSheet.create({
   },
   resultText: {
     textAlign: "center",
-    fontSize: 20,
+    fontSize: Dimensions.get("window").height < 400 ? 16 : 20,
   },
   highlight: {
     color: Colors.primary,

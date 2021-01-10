@@ -1,5 +1,12 @@
 import React, { useState, useRef, useEffect } from "react";
-import { StyleSheet, Text, View, Alert, FlatList } from "react-native";
+import {
+  StyleSheet,
+  Text,
+  View,
+  Alert,
+  FlatList,
+  Dimensions,
+} from "react-native";
 import NumberContainer from "../components/NumberContainer";
 import Card from "../components/Card";
 import BodyText from "../components/BodyText";
@@ -32,6 +39,12 @@ const GameScreen = ({ userChoice, onGameOver }) => {
   const initGuess = generateRandomNumber(1, 100, userChoice);
   const [currentGuess, setcurrentGuess] = useState(initGuess);
   const [guesses, setGuesses] = useState([initGuess.toString()]);
+  const [deviceWidth, setDeviceWidth] = useState(
+    Dimensions.get("window").width
+  );
+  const [deviceHeight, setDeviceHeight] = useState(
+    Dimensions.get("window").height
+  );
 
   // These ref's survive component reloads. Values are preserved
   // The difference between ref and state is that changes to ref
@@ -39,6 +52,16 @@ const GameScreen = ({ userChoice, onGameOver }) => {
   const currentMin = useRef(1);
   const currentMax = useRef(100);
 
+  useEffect(() => {
+    const updateLayout = () => {
+      setDeviceHeight(Dimensions.get("window").height);
+      setDeviceWidth(Dimensions.get("window").width);
+    };
+    Dimensions.addEventListener("change", updateLayout);
+    return () => {
+      Dimensions.removeEventListener("change", updateLayout);
+    };
+  });
   useEffect(() => {
     if (currentGuess == userChoice) {
       // pass no. of rounds taken to guess the number
@@ -73,6 +96,51 @@ const GameScreen = ({ userChoice, onGameOver }) => {
     setcurrentGuess(newGuess);
     setGuesses((curGuesses) => [newGuess.toString(), ...curGuesses]);
   };
+
+  let listContainerStyle = styles.listContainer;
+
+  if (deviceWidth < 350) {
+    listContainerStyle = style.listContainerBig;
+  }
+
+  if (deviceHeight < 500) {
+    return (
+      <View style={styles.screen}>
+        <Text>Opponent's Guess</Text>
+        <View style={styles.controls}>
+          <MainButton
+            onPress={
+              // you use bind when you want pass a parameter to a function when
+              // it gets called
+              handleGuess.bind(this, "lower")
+            }
+          >
+            <Ionicons name="md-remove" size={24} color="white" />
+          </MainButton>
+          <NumberContainer>{currentGuess}</NumberContainer>
+          <MainButton onPress={handleGuess.bind(this, "greater")}>
+            <Ionicons name="md-add" size={24} color="white" />
+          </MainButton>
+        </View>
+        <View style={styles.listContainer}>
+          {/* contentContainer style is a special style for ScrollView and FlatList */}
+          {/* style content in the list */}
+          {/* <ScrollView contentContainerStyle={styles.list}>
+          {guesses.map((guess, index) =>
+            renderListItem(guess, guesses.length - index)
+          )}
+        </ScrollView> */}
+          <FlatList
+            keyExtractor={(item) => item}
+            data={guesses}
+            // .bind() allows us to pass extra arguments in addition to the defaul parameter
+            renderItem={renderListItem.bind(this, guesses.length)}
+            contentContainerStyle={styles.list}
+          />
+        </View>
+      </View>
+    );
+  }
   return (
     <View style={styles.screen}>
       <Text>Opponent's Guess</Text>
@@ -91,7 +159,7 @@ const GameScreen = ({ userChoice, onGameOver }) => {
           <Ionicons name="md-add" size={24} color="white" />
         </MainButton>
       </Card>
-      <View style={styles.listContainer}>
+      <View style={listContainerStyle}>
         {/* contentContainer style is a special style for ScrollView and FlatList */}
         {/* style content in the list */}
         {/* <ScrollView contentContainerStyle={styles.list}>
@@ -120,7 +188,7 @@ const styles = StyleSheet.create({
   buttonContainer: {
     flexDirection: "row",
     justifyContent: "space-around",
-    marginTop: 20,
+    marginTop: Dimensions.get("window").height > 600 ? 20 : 10,
     width: 400,
     maxWidth: "90%",
   },
@@ -128,6 +196,17 @@ const styles = StyleSheet.create({
     // flex property is needed to make it scrollable in Android
     flex: 1,
     width: "60%",
+  },
+  listContainerBig: {
+    // flex property is needed to make it scrollable in Android
+    flex: 1,
+    width: "80%",
+  },
+  controls: {
+    flexDirection: "row",
+    justifyContent: "space-around",
+    alignItems: "center",
+    width: "80%",
   },
   list: {
     flexGrow: 1,
