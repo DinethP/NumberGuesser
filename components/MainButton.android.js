@@ -15,8 +15,8 @@ const MainButton = ({ children, onPress }) => {
   // dynamically convert the jsx element to either TouchableOpacity or
   // TouchableNativeFeedback
   let ButtonComponent = TouchableOpacity;
-
-  if (Platform.OS === "android" && Platform.Version >= 21) {
+  // only Android version 21 upwards has the button ripple effect
+  if (Platform.Version >= 21) {
     ButtonComponent = TouchableNativeFeedback;
   }
   return (

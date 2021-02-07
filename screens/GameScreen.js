@@ -12,6 +12,7 @@ import Card from "../components/Card";
 import BodyText from "../components/BodyText";
 import MainButton from "../components/MainButton";
 import { Ionicons } from "@expo/vector-icons";
+import { ScreenOrientation } from "expo";
 
 const generateRandomNumber = (min, max, exclude) => {
   min = Math.ceil(min);
